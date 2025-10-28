@@ -7,15 +7,13 @@ import pandas as pd
 st.set_page_config(page_title="الانتخابات البرلمانية العراقية", page_icon="🇮🇶", layout="centered")
 
 # ==============================
-# 🏛️ العنوان الرئيسي مع الشعارات
+# 🏛️ العنوان الرئيسي مع العلم فقط
 # ==============================
-col1, col2, col3 = st.columns([1, 5, 1])
+col1, col2 = st.columns([5, 1])
 with col1:
-    st.image("https://upload.wikimedia.org/wikipedia/commons/0/09/Iraqi_flag.svg", width=90)
-with col2:
     st.markdown("<h2 style='text-align:center; color:red;'>الانتخابات البرلمانية العراقية<br>قانون سانت ليغو المعدل (1.7)</h2>", unsafe_allow_html=True)
-with col3:
-    st.image("https://upload.wikimedia.org/wikipedia/commons/2/2a/IHEC_Logo.png", width=90)
+with col2:
+    st.image("https://upload.wikimedia.org/wikipedia/commons/0/09/Iraqi_flag.svg", width=100)
 
 # ==============================
 # 🗳️ إدخال البيانات الأساسية
@@ -86,4 +84,4 @@ if st.button("📈 حساب النتائج"):
 # 📄 تذييل الصفحة
 # ==============================
 st.markdown("---")
-st.markdown("<p style='text-align:center; color:gray;'>© 2025 المفوضية العليا المستقلة للانتخابات - تصميم: أسعد داخل هندول</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align:center; color:gray;'>تصميم: الدكتور أسعد دبيش © 2025</p>", unsafe_allow_html=True)
