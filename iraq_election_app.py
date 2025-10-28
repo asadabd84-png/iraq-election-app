@@ -1,5 +1,6 @@
 import streamlit as st
 import math
+import pandas as pd
 
 # =============================
 # 🇮🇶 واجهة تطبيق قانون سانت ليغو المعدّل
@@ -18,15 +19,11 @@ st.markdown(
 st.write("---")
 
 # =============================
-# 🏛️ إدخال بيانات المحافظة
+# 📍 إدخال بيانات المحافظة
 # =============================
 st.subheader("📍 إدخال بيانات المحافظة")
 governorate = st.text_input("اسم المحافظة:")
-
-# عدد المقاعد الكلي للمحافظة
 total_seats = st.number_input("🪑 عدد المقاعد الكلي:", min_value=1, max_value=100, value=10)
-
-# القاسم الانتخابي (مثل 1.7 أو 1.9)
 divisor = st.number_input("⚖️ القاسم الانتخابي (مثل 1.7 أو 1.9):", min_value=1.0, max_value=2.0, value=1.7, step=0.1)
 
 st.write("---")
@@ -41,44 +38,50 @@ parties = {}
 for i in range(int(num_parties)):
     name = st.text_input(f"اسم الحزب رقم {i+1}:", key=f"name_{i}")
     votes = st.number_input(f"عدد الأصوات للحزب رقم {i+1}:", min_value=0, step=100, key=f"votes_{i}")
-    parties[name] = votes
+    if name:
+        parties[name] = votes
 
 # =============================
 # 🧮 حساب المقاعد
 # =============================
 if st.button("احسب توزيع المقاعد"):
-    if sum(parties.values()) == 0:
+    if len(parties) == 0 or sum(parties.values()) == 0:
         st.warning("الرجاء إدخال أصوات صحيحة للأحزاب.")
     else:
+        # تطبيق قانون سانت ليغو المعدّل
         results = []
         for party, votes in parties.items():
             for n in range(1, total_seats * 2):
                 results.append((party, votes / (divisor + 2 * (n - 1))))
 
-        # ترتيب النتائج تنازلياً
         results.sort(key=lambda x: x[1], reverse=True)
-
-        # أخذ أعلى عدد من المقاعد
         allocated = {}
+
+        # توزيع المقاعد الكلية
         for i in range(total_seats):
             party = results[i][0]
             allocated[party] = allocated.get(party, 0) + 1
 
         # =============================
-        # 👩‍🦰👨‍🦱 مقاعد النساء (كل مقعدين رجال الثالث امرأة)
+        # 👩‍🦰👨‍🦱 حساب مقاعد الرجال والنساء
+        # قاعدة: كل 3 رجال → امرأة واحدة (أي 1 من كل 4 نساء)
         # =============================
-        male_seats = math.floor(total_seats * (2/3))
-        female_seats = total_seats - male_seats
+        data = []
+        for party, seats in allocated.items():
+            female_seats = seats // 4  # امرأة لكل 4 مقاعد
+            male_seats = seats - female_seats
+            data.append([party, seats, male_seats, female_seats])
+
+        df = pd.DataFrame(data, columns=["الحزب", "إجمالي المقاعد", "مقاعد الرجال", "مقاعد النساء"])
 
         st.success(f"✅ نتائج محافظة {governorate if governorate else 'غير محددة'}:")
-        st.write(f"إجمالي المقاعد: {total_seats}")
-        st.write(f"مقاعد الرجال: {male_seats} | مقاعد النساء: {female_seats}")
-
-        st.write("### توزيع المقاعد:")
-        for party, seats in allocated.items():
-            st.write(f"- {party}: {seats} مقعد")
+        st.dataframe(df, use_container_width=True)
 
 st.write("---")
+
+# =============================
+# 🖋️ تذييل الصفحة
+# =============================
 st.markdown(
     """
     <div style='text-align:center; font-size:16px; color:gray;'>
@@ -86,4 +89,3 @@ st.markdown(
     </div>
     """, unsafe_allow_html=True
 )
-
